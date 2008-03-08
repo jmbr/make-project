@@ -1,4 +1,4 @@
-(common-lisp:in-package :common-lisp)
+(in-package :cl-user)
 
 (defpackage :make-project
   (:use :common-lisp :cl-interpol :incf-cl)
@@ -6,17 +6,11 @@
 
 (in-package :make-project)
 
-(defparameter *project-prefix-dir* "/home/jmbr/projects/")
-
 (cl-interpol:enable-interpol-syntax)
 
-(defun make-project (name description)
-  (let* ((directory-name (string-join (list *project-prefix-dir* name) ""))
-         (asd-file-name (string-join (list directory-name "/" name ".asd") "")))
-   (iolib-posix:mkdir directory-name #o755)
-   (iolib-posix:chdir directory-name)
-   (with-open-file (asd-file asd-file-name :direction :output)
-     (format asd-file
+(defparameter *project-prefix-dir* "/home/jmbr/projects/")
+(defparameter *prefix* "com.superadditive.")
+(defparameter *license*
 #?[;;; Copyright (c) 2008 Juan M. Bello Rivas <jmbr@superadditive.com>
 ;;; 
 ;;; Permission is hereby granted, free of charge, to any person
@@ -37,12 +31,23 @@
 ;;; HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 ;;; WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 ;;; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-;;; DEALINGS IN THE SOFTWARE.
+;;; DEALINGS IN THE SOFTWARE.]
+)
 
-(defpackage :${name}-system
+(defun make-project (name description)
+  (let* ((directory-name (string-join (list *project-prefix-dir* name) ""))
+         (asd-filename (string-join (list directory-name "/" name ".asd") ""))
+         (package-filename (string-join (list directory-name "/package.lisp") ""))
+         (main-filename (string-join (list directory-name "/" name ".lisp") "")))
+   (iolib-posix:mkdir directory-name #o755)
+   (with-open-file (asd-file asd-filename :direction :output)
+     (format asd-file
+#?[${*license*}
+
+(defpackage :${*prefix*}${name}-system
   (:use :common-lisp :asdf))
 
-(in-package :${name}-system)
+(in-package :${*prefix*}${name}-system)
 
 (defsystem "${name}"
   :description "${description}"
@@ -52,4 +57,23 @@
   :serial t
   :components ((:file "package")
                (:file "${name}")))
+]))
+   (with-open-file (package-file package-filename :direction :output)
+     (format package-file
+#?[${*license*}
+
+(in-package :cl-user)
+
+(defpackage :com.superadditive.${name}
+  (:nicknames :${name})
+  (:use :common-lisp)
+;  (:export ...)
+  )
+]))
+   (with-open-file (main-file main-filename :direction :output)
+     (format main-file
+#?[${*license*}
+
+(in-package :${*prefix*}${name})
+
 ]))))
