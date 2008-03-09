@@ -1,14 +1,14 @@
 (in-package :cl-user)
 
 (defpackage :make-project
-  (:use :common-lisp :cl-interpol :incf-cl)
+  (:use :common-lisp :cl-interpol)
   (:export :make-project))
 
 (in-package :make-project)
 
 (cl-interpol:enable-interpol-syntax)
 
-(defparameter *project-prefix-dir* "/home/jmbr/projects/")
+(defparameter *prefix-dir* "/home/jmbr/projects/")
 (defparameter *prefix* "com.superadditive.")
 (defparameter *license*
 #?[;;; Copyright (c) 2008 Juan M. Bello Rivas <jmbr@superadditive.com>
@@ -35,11 +35,11 @@
 )
 
 (defun make-project (name description)
-  (let* ((directory-name (string-join (list *project-prefix-dir* name) ""))
-         (asd-filename (string-join (list directory-name "/" name ".asd") ""))
-         (package-filename (string-join (list directory-name "/package.lisp") ""))
-         (main-filename (string-join (list directory-name "/" name ".lisp") "")))
-   (iolib-posix:mkdir directory-name #o755)
+  (let* ((dirname #?"${*prefix-dir*}/${name}")
+         (asd-filename #?"${dirname}/${name}.asd")
+         (package-filename #?"${dirname}/package.lisp")
+         (main-filename #?"${dirname}/${name}.lisp"))
+   (iolib-posix:mkdir dirname #o755)
    (with-open-file (asd-file asd-filename :direction :output)
      (format asd-file
 #?[${*license*}
