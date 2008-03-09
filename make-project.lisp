@@ -39,7 +39,7 @@
          (asd-filename #?"${dirname}/${name}.asd")
          (package-filename #?"${dirname}/package.lisp")
          (main-filename #?"${dirname}/${name}.lisp"))
-   (iolib-posix:mkdir dirname #o755)
+   (sb-posix:mkdir dirname #o755)
    (with-open-file (asd-file asd-filename :direction :output)
      (format asd-file
 #?[${*license*}

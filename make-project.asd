@@ -29,6 +29,6 @@
   :description "Common Lisp project generator."
   :author "Juan M. Bello Rivas <jmbr@superadditive.com>"
   :licence "X11"
-  :depends-on ("cl-interpol" "iolib-posix")
+  :depends-on ("cl-interpol")
   :serial t
   :components ((:file "make-project")))
