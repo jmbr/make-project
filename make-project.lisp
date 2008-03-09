@@ -6,7 +6,7 @@
 
 (in-package :make-project)
 
-(cl-interpol:enable-interpol-syntax)
+(enable-interpol-syntax)
 
 (defparameter *prefix-dir* "/home/jmbr/projects/")
 (defparameter *prefix* "com.superadditive.")
