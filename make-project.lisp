@@ -38,10 +38,11 @@
   (let* ((dirname #?"${*prefix-dir*}/${name}")
          (asd-filename #?"${dirname}/${name}.asd")
          (package-filename #?"${dirname}/package.lisp")
-         (main-filename #?"${dirname}/${name}.lisp"))
-   (sb-posix:mkdir dirname #o755)
-   (with-open-file (asd-file asd-filename :direction :output)
-     (format asd-file
+         (main-filename #?"${dirname}/${name}.lisp")
+         (test-filename #?"${dirname}/test-suite.lisp"))
+    (sb-posix:mkdir dirname #o755)
+    (with-open-file (asd-file asd-filename :direction :output)
+      (format asd-file
 #?[${*license*}
 
 (defpackage :${*prefix*}${name}-system
@@ -49,7 +50,7 @@
 
 (in-package :${*prefix*}${name}-system)
 
-(defsystem "${name}"
+(defsystem :${name}
   :description "${description}"
   :author "Juan M. Bello Rivas <jmbr@superadditive.com>"
   :licence "X11"
@@ -57,23 +58,59 @@
   :serial t
   :components ((:file "package")
                (:file "${name}")))
+
+(defsystem :${name}-test
+  :description "Test suite for ${name}."
+  :depends-on (:stefil)
+  :components
+  ((:file "test-suite")))
+
+(defmethod perform ((op test-op) (system (eql (find-system :${name}))))
+  (asdf:operate 'asdf:load-op :${name}-test)
+  (eval (read-from-string "(stefil:funcall-test-with-feedback-message '${name}-test:test)"))
+  (values))
+
+(defmethod operation-done-p ((op test-op) (system (eql (find-system :${name}))))
+  nil)
 ]))
+
    (with-open-file (package-file package-filename :direction :output)
      (format package-file
 #?[${*license*}
 
 (in-package :cl-user)
 
-(defpackage :com.superadditive.${name}
+(defpackage :${*prefix*}${name}
   (:nicknames :${name})
   (:use :common-lisp)
 ;  (:export ...)
   )
 ]))
+
    (with-open-file (main-file main-filename :direction :output)
      (format main-file
 #?[${*license*}
 
 (in-package :${*prefix*}${name})
 
+]))
+
+   (with-open-file (test-file test-filename :direction :output)
+     (format test-file
+#?[${*license*}
+
+(defpackage :${*prefix*}${name}-test
+  (:nicknames :${name}-test)
+  (:use :common-lisp :stefil)
+  (:export :test))
+
+(in-package :${*prefix*}${name}-test)
+
+(in-root-suite)
+
+(in-suite (defsuite test))
+
+;; (deftest test-whatever ()
+;;   (signals ...)
+;;   (is (eql ...)))
 ]))))
