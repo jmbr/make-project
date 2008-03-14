@@ -8,9 +8,9 @@
 
 (enable-interpol-syntax)
 
-(defparameter *prefix-dir* "/home/jmbr/projects/")
-(defparameter *prefix* "com.superadditive.")
-(defparameter *license*
+(defvar *prefix-dir* "/home/jmbr/projects/")
+(defvar *prefix* "com.superadditive.")
+(defvar *license*
 #?[;;; Copyright (c) 2008 Juan M. Bello Rivas <jmbr@superadditive.com>
 ;;; 
 ;;; Permission is hereby granted, free of charge, to any person
