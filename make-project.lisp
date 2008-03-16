@@ -61,7 +61,7 @@
 
 (defsystem :${name}-test
   :description "Test suite for ${name}."
-  :depends-on (:stefil)
+  :depends-on (:${name} :stefil)
   :components
   ((:file "test-suite")))
 
