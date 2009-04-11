@@ -11,7 +11,7 @@
 (defvar *prefix-dir* "/home/jmbr/projects/")
 (defvar *prefix* "com.superadditive.")
 (defvar *license*
-#?[;;; Copyright (c) 2008 Juan M. Bello Rivas <jmbr@superadditive.com>
+#?[;;; Copyright (c) 2009 Juan M. Bello Rivas <jmbr@superadditive.com>
 ;;;
 ;;; Permission is hereby granted, free of charge, to any person
 ;;; obtaining a copy of this software and associated documentation
