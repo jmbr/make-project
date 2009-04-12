@@ -1,4 +1,4 @@
-(in-package :cl-user)
+(in-package :common-lisp)
 
 (defpackage :make-project
   (:use :common-lisp :cl-interpol)
@@ -78,7 +78,7 @@
      (format package-file
 #?[${*license*}
 
-(in-package :cl-user)
+(in-package :common-lisp)
 
 (defpackage :${*prefix*}${name}
   (:nicknames :${name})
