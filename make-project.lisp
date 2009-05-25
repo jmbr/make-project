@@ -106,9 +106,7 @@
 
 (in-package :${*prefix*}${name}-test)
 
-(in-root-suite)
-
-(in-suite (defsuite test))
+(defsuite* (test :in root-suite :documentation "Test suite"))
 
 ;; (deftest test-whatever ()
 ;;   (signals ...)
