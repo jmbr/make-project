@@ -85,6 +85,10 @@
   (:use :common-lisp)
 ;  (:export ...)
   )
+
+(defpackage :${*prefix*}${name}-user
+  (:nicknames :${name}-user)
+  (:use :common-lisp :${name}))
 ]))
 
    (with-open-file (main-file main-filename :direction :output)
