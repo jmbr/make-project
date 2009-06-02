@@ -105,7 +105,7 @@
 
 (defpackage :${*prefix*}${name}-test
   (:nicknames :${name}-test)
-  (:use :common-lisp :stefil)
+  (:use :common-lisp :stefil :${name})
   (:export :test))
 
 (in-package :${*prefix*}${name}-test)
