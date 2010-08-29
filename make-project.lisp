@@ -1,17 +1,19 @@
-(in-package :common-lisp)
+(in-package #:common-lisp)
 
-(defpackage :make-project
-  (:use :common-lisp :cl-interpol)
-  (:export :make-project))
+(defpackage #:make-project
+  (:use #:common-lisp #:cl-interpol)
+  (:export #:make-project))
 
-(in-package :make-project)
+(in-package #:make-project)
 
 (enable-interpol-syntax)
 
-(defvar *prefix-dir* "/home/jmbr/projects/")
-(defvar *prefix* "com.superadditive.")
+(defvar *prefix-dir*
+  (merge-pathnames #p"sources/" (user-homedir-pathname))
+  "Directory where the source code repositories are located.")
+(defvar *prefix* "")
 (defvar *license*
-#?[;;; Copyright (c) 2009 Juan M. Bello Rivas <jmbr@superadditive.com>
+#?[;;; Copyright (c) 2010 Juan M. Bello Rivas <jmbr@superadditive.com>
 ;;;
 ;;; Permission is hereby granted, free of charge, to any person
 ;;; obtaining a copy of this software and associated documentation
@@ -40,37 +42,37 @@
          (package-filename #?"${dirname}/package.lisp")
          (main-filename #?"${dirname}/${name}.lisp")
          (test-filename #?"${dirname}/test-suite.lisp"))
-    (sb-posix:mkdir dirname #o755)
+    (iolib.syscalls:mkdir dirname #o755)
     (with-open-file (asd-file asd-filename :direction :output)
       (format asd-file
 #?[${*license*}
 
-(defpackage :${*prefix*}${name}-system
-  (:use :common-lisp :asdf))
+(defpackage #:${*prefix*}${name}-system
+  (:use #:common-lisp #:asdf))
 
-(in-package :${*prefix*}${name}-system)
+(in-package #:${*prefix*}${name}-system)
 
-(defsystem :${name}
+(defsystem #:${name}
   :description "${description}"
   :author "Juan M. Bello Rivas <jmbr@superadditive.com>"
   :licence "X11"
-;  :depends-on ("")
+;  :depends-on ()
   :serial t
   :components ((:file "package")
                (:file "${name}")))
 
-(defsystem :${name}-test
+(defsystem #:${name}-test
   :description "Test suite for ${name}."
-  :depends-on (:${name} :stefil)
+  :depends-on (#:${name} #:hu.dwim.stefil)
   :components
   ((:file "test-suite")))
 
-(defmethod perform ((op test-op) (system (eql (find-system :${name}))))
-  (asdf:operate 'asdf:load-op :${name}-test)
-  (eval (read-from-string "(stefil:funcall-test-with-feedback-message '${name}-test:test)"))
+(defmethod perform ((op test-op) (system (eql (find-system "${name}"))))
+  (asdf:load-system "${name}-test")
+  (eval (read-from-string "(hu.dwim.stefil:funcall-test-with-feedback-message '${name}-test:test)"))
   (values))
 
-(defmethod operation-done-p ((op test-op) (system (eql (find-system :${name}))))
+(defmethod operation-done-p ((op test-op) (system (eql (find-system "${name}"))))
   nil)
 ]))
 
@@ -78,24 +80,22 @@
      (format package-file
 #?[${*license*}
 
-(in-package :common-lisp)
+(in-package #:common-lisp)
 
-(defpackage :${*prefix*}${name}
-  (:nicknames :${name})
-  (:use :common-lisp)
-;  (:export ...)
+(defpackage #:${*prefix*}${name}
+  (:use #:common-lisp)
+;  (:export #:...)
   )
 
-(defpackage :${*prefix*}${name}-user
-  (:nicknames :${name}-user)
-  (:use :common-lisp :${name}))
+(defpackage #:${*prefix*}${name}-user
+  (:use :common-lisp #:${name}))
 ]))
 
    (with-open-file (main-file main-filename :direction :output)
      (format main-file
 #?[${*license*}
 
-(in-package :${*prefix*}${name})
+(in-package #:${*prefix*}${name})
 
 ]))
 
@@ -103,12 +103,11 @@
      (format test-file
 #?[${*license*}
 
-(defpackage :${*prefix*}${name}-test
-  (:nicknames :${name}-test)
-  (:use :common-lisp :stefil :${name})
-  (:export :test))
+(defpackage #:${*prefix*}${name}-test
+  (:use #:common-lisp #:hu.dwim.stefil #:${name})
+  (:export #:test))
 
-(in-package :${*prefix*}${name}-test)
+(in-package #:${*prefix*}${name}-test)
 
 (defsuite* (test :in root-suite :documentation "Test suite"))
 
