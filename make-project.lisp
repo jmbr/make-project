@@ -14,12 +14,15 @@
 (defvar *prefix* "")
 
 (defun make-project (name description)
-  (let* ((dirname #?"${*prefix-dir*}/${name}")
+  (let* ((dirname #?"${*prefix-dir*}${name}")
          (asd-filename #?"${dirname}/${name}.asd")
          (package-filename #?"${dirname}/package.lisp")
          (main-filename #?"${dirname}/${name}.lisp")
          (test-filename #?"${dirname}/test-suite.lisp"))
     (iolib/syscalls:mkdir dirname #o755)
+    #+quicklisp
+    (let ((linkpath #?"${quicklisp:*quicklisp-home*}/local-projects/${name}"))
+      (iolib/syscalls:symlink dirname linkpath))
     (with-open-file (asd-file asd-filename :direction :output)
       (format asd-file
 #?[(cl:defpackage #:${*prefix*}${name}-system
