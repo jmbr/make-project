@@ -12,29 +12,6 @@
   (merge-pathnames #p"sources/" (user-homedir-pathname))
   "Directory where the source code repositories are located.")
 (defvar *prefix* "")
-(defvar *license*
-#?[;;; Copyright (c) 2010 Juan M. Bello Rivas <jmbr@superadditive.com>
-;;;
-;;; Permission is hereby granted, free of charge, to any person
-;;; obtaining a copy of this software and associated documentation
-;;; files (the "Software"), to deal in the Software without
-;;; restriction, including without limitation the rights to use, copy,
-;;; modify, merge, publish, distribute, sublicense, and/or sell copies
-;;; of the Software, and to permit persons to whom the Software is
-;;; furnished to do so, subject to the following conditions:
-;;;
-;;; The above copyright notice and this permission notice shall be
-;;; included in all copies or substantial portions of the Software.
-;;;
-;;; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-;;; EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-;;; MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-;;; NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-;;; HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-;;; WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-;;; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-;;; DEALINGS IN THE SOFTWARE.]
-)
 
 (defun make-project (name description)
   (let* ((dirname #?"${*prefix-dir*}/${name}")
@@ -42,12 +19,10 @@
          (package-filename #?"${dirname}/package.lisp")
          (main-filename #?"${dirname}/${name}.lisp")
          (test-filename #?"${dirname}/test-suite.lisp"))
-    (iolib.syscalls:mkdir dirname #o755)
+    (iolib/syscalls:mkdir dirname #o755)
     (with-open-file (asd-file asd-filename :direction :output)
       (format asd-file
-#?[${*license*}
-
-(cl:defpackage #:${*prefix*}${name}-system
+#?[(cl:defpackage #:${*prefix*}${name}-system
   (:use #:common-lisp #:asdf))
 
 (cl:in-package #:${*prefix*}${name}-system)
@@ -59,18 +34,18 @@
 ;  :depends-on ()
   :serial t
   :components ((:file "package")
-               (:file "${name}")))
+               (:file "${name}"))
+  :in-order-to ((test-op (test-op "${name}/tests"))))
 
-(defsystem #:${name}-test
+(defsystem #:${name}/tests
   :description "Test suite for ${name}."
-  :depends-on (#:${name} #:hu.dwim.stefil)
+  :depends-on (#:${name} #:fiasco)
   :components
   ((:file "test-suite")))
 
 (defmethod perform ((op test-op) (system (eql (find-system "${name}"))))
-  (asdf:load-system "${name}-test")
-  (eval (read-from-string "(hu.dwim.stefil:funcall-test-with-feedback-message '${name}-test:test)"))
-  (values))
+  (let ((run-tests (find-symbol "ALL-TESTS" "FIASCO")))
+    (funcall run-tests)))
 
 (defmethod operation-done-p ((op test-op) (system (eql (find-system "${name}"))))
   nil)
@@ -80,36 +55,27 @@
 
    (with-open-file (package-file package-filename :direction :output)
      (format package-file
-#?[${*license*}
-
-(cl:defpackage #:${*prefix*}${name}
+#?[(cl:defpackage #:${*prefix*}${name}
   (:use #:common-lisp)
 ;  (:export #:...)
   )
 
 (cl:defpackage #:${*prefix*}${name}-user
-  (:use :common-lisp #:${name}))
+  (:use #:common-lisp #:${name}))
 ]))
 
    (with-open-file (main-file main-filename :direction :output)
      (format main-file
-#?[${*license*}
-
-(cl:in-package #:${*prefix*}${name})
+#?[(cl:in-package #:${*prefix*}${name})
 
 ]))
 
    (with-open-file (test-file test-filename :direction :output)
      (format test-file
-#?[${*license*}
-
-(cl:defpackage #:${*prefix*}${name}-test
-  (:use #:common-lisp #:hu.dwim.stefil #:${name})
-  (:export #:test))
+#?[(fiasco:define-test-package #:${*prefix*}${name}-test
+  (:use #:${name}))
 
 (cl:in-package #:${*prefix*}${name}-test)
-
-(defsuite* (test :in root-suite :documentation "Test suite"))
 
 ;; (deftest test-whatever ()
 ;;   (signals ...)
