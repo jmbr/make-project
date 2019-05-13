@@ -1,4 +1,4 @@
-(in-package #:common-lisp)
+(cl:in-package #:common-lisp)
 
 (defpackage #:make-project
   (:use #:common-lisp #:cl-interpol)
@@ -47,10 +47,10 @@
       (format asd-file
 #?[${*license*}
 
-(defpackage #:${*prefix*}${name}-system
+(cl:defpackage #:${*prefix*}${name}-system
   (:use #:common-lisp #:asdf))
 
-(in-package #:${*prefix*}${name}-system)
+(cl:in-package #:${*prefix*}${name}-system)
 
 (defsystem #:${name}
   :description "${description}"
@@ -74,20 +74,20 @@
 
 (defmethod operation-done-p ((op test-op) (system (eql (find-system "${name}"))))
   nil)
+
+(delete-package *package*)
 ]))
 
    (with-open-file (package-file package-filename :direction :output)
      (format package-file
 #?[${*license*}
 
-(in-package #:common-lisp)
-
-(defpackage #:${*prefix*}${name}
+(cl:defpackage #:${*prefix*}${name}
   (:use #:common-lisp)
 ;  (:export #:...)
   )
 
-(defpackage #:${*prefix*}${name}-user
+(cl:defpackage #:${*prefix*}${name}-user
   (:use :common-lisp #:${name}))
 ]))
 
@@ -95,7 +95,7 @@
      (format main-file
 #?[${*license*}
 
-(in-package #:${*prefix*}${name})
+(cl:in-package #:${*prefix*}${name})
 
 ]))
 
@@ -103,11 +103,11 @@
      (format test-file
 #?[${*license*}
 
-(defpackage #:${*prefix*}${name}-test
+(cl:defpackage #:${*prefix*}${name}-test
   (:use #:common-lisp #:hu.dwim.stefil #:${name})
   (:export #:test))
 
-(in-package #:${*prefix*}${name}-test)
+(cl:in-package #:${*prefix*}${name}-test)
 
 (defsuite* (test :in root-suite :documentation "Test suite"))
 
