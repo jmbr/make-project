@@ -1,4 +1,4 @@
-(cl:in-package #:common-lisp)
+(in-package #:common-lisp)
 
 (defpackage #:make-project
   (:use #:common-lisp #:cl-interpol)
@@ -25,11 +25,6 @@
       (iolib/syscalls:symlink dirname linkpath))
     (with-open-file (asd-file asd-filename :direction :output)
       (format asd-file
-#?[(cl:defpackage #:${*prefix*}${name}-system
-  (:use #:common-lisp #:asdf))
-
-(cl:in-package #:${*prefix*}${name}-system)
-
 (defsystem #:${name}
   :description "${description}"
   :author "Juan M. Bello Rivas <jmbr@superadditive.com>"
@@ -52,24 +47,22 @@
 
 (defmethod operation-done-p ((op test-op) (system (eql (find-system "${name}"))))
   nil)
-
-(delete-package *package*)
 ]))
 
    (with-open-file (package-file package-filename :direction :output)
      (format package-file
-#?[(cl:defpackage #:${*prefix*}${name}
+#?[(defpackage #:${*prefix*}${name}
   (:use #:common-lisp)
 ;  (:export #:...)
   )
 
-(cl:defpackage #:${*prefix*}${name}-user
+(defpackage #:${*prefix*}${name}-user
   (:use #:common-lisp #:${name}))
 ]))
 
    (with-open-file (main-file main-filename :direction :output)
      (format main-file
-#?[(cl:in-package #:${*prefix*}${name})
+#?[(in-package #:${*prefix*}${name})
 
 ]))
 
@@ -78,7 +71,7 @@
 #?[(fiasco:define-test-package #:${*prefix*}${name}-test
   (:use #:${name}))
 
-(cl:in-package #:${*prefix*}${name}-test)
+(in-package #:${*prefix*}${name}-test)
 
 ;; (deftest test-whatever ()
 ;;   (signals ...)

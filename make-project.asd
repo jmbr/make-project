@@ -20,11 +20,6 @@
 ;;; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 ;;; DEALINGS IN THE SOFTWARE.
 
-(defpackage #:make-project-system
-  (:use :common-lisp :asdf))
-
-(in-package #:make-project-system)
-
 (defsystem "make-project"
   :description "Common Lisp project generator."
   :author "Juan M. Bello Rivas <jmbr@superadditive.com>"
