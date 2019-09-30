@@ -25,7 +25,7 @@
       (iolib/syscalls:symlink dirname linkpath))
     (with-open-file (asd-file asd-filename :direction :output)
       (format asd-file
-(defsystem #:${name}
+#?[(defsystem #:${name}
   :description "${description}"
   :author "Juan M. Bello Rivas <jmbr@superadditive.com>"
   :licence "X11"
