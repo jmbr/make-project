@@ -19,17 +19,20 @@
          (package-filename #?"${dirname}/package.lisp")
          (main-filename #?"${dirname}/${name}.lisp")
          (test-filename #?"${dirname}/test-suite.lisp"))
-    (iolib/syscalls:mkdir dirname #o755)
+    (handler-case (iolib/syscalls:mkdir dirname #o755)
+      (iolib/syscalls:eexist ()))
     #+quicklisp
     (let ((linkpath #?"${quicklisp:*quicklisp-home*}/local-projects/${name}"))
-      (iolib/syscalls:symlink dirname linkpath))
+      (handler-case
+          (iolib/syscalls:symlink dirname linkpath)
+        (iolib/syscalls:eexist ())))
     (with-open-file (asd-file asd-filename :direction :output)
       (format asd-file
 #?[(defsystem #:${name}
   :description "${description}"
   :author "Juan M. Bello Rivas <jmbr@superadditive.com>"
-  :licence "X11"
-;  :depends-on ()
+  :license "X11"
+  :depends-on ((:version "asdf" "3.1.2"))
   :serial t
   :components ((:file "package")
                (:file "${name}"))
@@ -37,16 +40,11 @@
 
 (defsystem #:${name}/tests
   :description "Test suite for ${name}."
-  :depends-on (#:${name} #:fiasco)
-  :components
-  ((:file "test-suite")))
-
-(defmethod perform ((op test-op) (system (eql (find-system "${name}"))))
-  (let ((run-tests (find-symbol "ALL-TESTS" "FIASCO")))
-    (funcall run-tests)))
-
-(defmethod operation-done-p ((op test-op) (system (eql (find-system "${name}"))))
-  nil)
+  :depends-on ((:version "asdf" "3.1.2")
+               #:${name}
+               #:fiasco)
+  :perform (test-op (o s) (symbol-call '#:fiasco '#:run-package-tests :package '#:${*prefix*}${name}-test))
+  :components ((:file "test-suite")))
 ]))
 
    (with-open-file (package-file package-filename :direction :output)
